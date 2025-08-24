@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>催眠软件（迫真）</title>
+    <style>
+        /* 页面基础样式：全屏粉红色背景 */
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #ff69b4; /* 粉红色背景 */
+            position: relative;
+            overflow: hidden; /* 隐藏超出屏幕的圈 */
+        }
+        /* 白色扩散圈样式：厚度2mm，居中生成 */
+        .white-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            border-radius: 50%; /* 圆形 */
+            border: 2mm solid #fff; /* 2毫米白色边框（圈厚度） */
+            background: transparent; /* 中空效果 */
+            animation: expandCircle 3s ease-out forwards; /* 扩散动画 */
+        }
+        /* 圈扩散动画：扩大到屏幕宽→停留0.2秒→消失 */
+        @keyframes expandCircle {
+            0% { width: 0; height: 0; opacity: 1; }
+            /* 扩大到屏幕宽度（100vw） */
+            80% { width: 100vw; height: 100vw; opacity: 1; }
+            /* 停留0.2秒（动画总时长3s，此处占比对应0.2s） */
+            86.67% { width: 100vw; height: 100vw; opacity: 1; }
+            100% { width: 100vw; height: 100vw; opacity: 0; } /* 消失 */
+        }
+        /* 文字通用样式：高度1厘米，黑色，居中对齐 */
+        .text {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #000; /* 黑色文字 */
+            height: 1cm; /* 文字高度1厘米 */
+            line-height: 1cm; /* 垂直居中 */
+            font-size: 18px; /* 适配1cm高度的字体大小 */
+            cursor: pointer; /* 点击指针 */
+            transition: all 0.3s ease;
+        }
+        /* 一号文字：初始在屏幕最下方，后上移5mm */
+        #text1 {
+            bottom: 0; /* 初始在最下方 */
+            opacity: 0; /* 初始隐藏 */
+            animation: moveUp 0.5s ease-out 1s forwards; /* 1秒后上移 */
+        }
+        /* 一号文字上移动画：上移5mm */
+        @keyframes moveUp {
+            to {
+                bottom: 5mm; /* 上移5毫米 */
+                opacity: 1; /* 显示文字 */
+            }
+        }
+        /* 二号文字：初始隐藏，位于一号文字位置 */
+        #text2 {
+            bottom: 5mm; /* 与上移后的一号文字同位置 */
+            opacity: 0; /* 初始隐藏 */
+        }
+        /* 复制提示文字：屏幕中心，初始隐藏 */
+        #copyTip {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #000;
+            font-size: 24px;
+            font-weight: bold;
+            opacity: 0; /* 初始隐藏 */
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- 一号文字：催眠软件（迫真） -->
+    <div class="text" id="text1">催眠软件（迫真）</div>
+    <!-- 二号文字：点击分享好友 -->
+    <div class="text" id="text2">点击分享好友</div>
+    <!-- 复制提示文字：已复制 -->
+    <div id="copyTip">已复制</div>
+
+    <script>
+        // 1. 每0.5秒生成一个白色扩散圈
+        function createWhiteCircle() {
+            const circle = document.createElement('div');
+            circle.classList.add('white-circle');
+            document.body.appendChild(circle);
+            // 动画结束后移除圈（避免DOM堆积）
+            setTimeout(() => {
+                circle.remove();
+            }, 3000); // 与动画时长一致
+        }
+        // 页面加载即开始生成，每0.5秒一个
+        setInterval(createWhiteCircle, 500);
+        createWhiteCircle(); // 立即生成第一个
+
+        // 2. 文字交互逻辑
+        const text1 = document.getElementById('text1');
+        const text2 = document.getElementById('text2');
+        const copyTip = document.getElementById('copyTip');
+
+        // 点击一号文字：隐藏text1，显示text2
+        text1.addEventListener('click', () => {
+            text1.style.opacity = '0';
+            setTimeout(() => {
+                text1.style.display = 'none';
+                text2.style.opacity = '1';
+                text2.style.display = 'block';
+            }, 300); // 配合过渡动画
+        });
+
+        // 点击二号文字：复制1234→显示提示→3秒后恢复text1
+        text2.addEventListener('click', async () => {
+            try {
+                // 复制1234到剪贴板
+                await navigator.clipboard.writeText('1234');
+                // 显示中心复制提示1秒
+                copyTip.style.opacity = '1';
+                setTimeout(() => {
+                    copyTip.style.opacity = '0';
+                }, 1000);
+
+                // 隐藏text2，3秒后恢复text1
+                text2.style.opacity = '0';
+                setTimeout(() => {
+                    text2.style.display = 'none';
+                    text1.style.display = 'block';
+                    setTimeout(() => {
+                        text1.style.opacity = '1';
+                    }, 100);
+                }, 3000);
+            } catch (err) {
+                console.error('复制失败:', err);
+            }
+        });
+    </script>
+</body>
+</html>
